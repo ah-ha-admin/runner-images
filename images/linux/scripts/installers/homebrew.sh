@@ -8,6 +8,7 @@
 # Source the helpers
 source $HELPER_SCRIPTS/etc-environment.sh
 source $HELPER_SCRIPTS/install.sh
+source $HELPER_SCRIPTS/os.sh
 
 # Install the Homebrew on Linux
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
@@ -36,5 +37,14 @@ for package in $brew_packages; do
         find $(brew --prefix)/bin -name *zstd* -exec sudo sh -c 'ln -s {} /usr/local/bin/$(basename {})' ';'
     fi
 done
+
+if isUbuntu18 || isUbuntu20; then
+    # Starting with homebrew 3.6.0 gcc-11 and glibc
+    # are pulled during any package installation
+    # zstd is still needed for gcc lto
+    # so it goes first
+    brew update
+    brew install glibc gcc@11
+fi
 
 invoke_tests "Tools" "Homebrew"
