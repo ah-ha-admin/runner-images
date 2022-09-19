@@ -257,23 +257,36 @@ Describe "HHVM" -Skip:(Test-IsUbuntu22) {
 }
 
 Describe "Homebrew" {
-    $brewToolset = (Get-ToolsetContent).brew
-    $testCases = $brewToolset | ForEach-Object { @{brewName = $_.name; brewCommand = $_.command} }
+    Context "Hombrew glibc /bin files are not in PATH" -Skip:(Test-IsUbuntu22) {
+        $glibcBinFiles = brew ls -v glibc | Select-String "/bin" | ForEach-Object { ([string]$_).Split("/")[-1] }
+        $glibcBinaryPaths = $glibcBinFiles| ForEach-Object { which  $_ }
+        $testCases = $glibcBinaryPaths | ForEach-Object { @{ BinaryPath = $_ } }
 
-    It "homebrew" {
-        "brew --version" | Should -ReturnZeroExitCode
+        It "<BinaryPath>" -TestCases $testCases {
+            "$BinaryPath" | Should -Not -Match "/home/linuxbrew"
+        }
     }
+}
 
-    It "zstd has /usr/local/bin symlink" {
-        "/usr/local/bin/zstd" | Should -Exist
-    }
+    Context "brew and packages" {
+        $brewToolset = (Get-ToolsetContent).brew
+        $testCases = $brewToolset | ForEach-Object { @{brewName = $_.name; brewCommand = $_.command} }
 
-    It "homebrew package <brewName>" -TestCases $testCases {
-        $brewPrefix = brew --prefix $brewName
-        $brewPackage = Join-Path $brewPrefix "bin" $brewCommand
+        It "homebrew" {
+            "brew --version" | Should -ReturnZeroExitCode
+        }
 
-        "$brewPackage --version" | Should -ReturnZeroExitCode
-    }
+        It "zstd has /usr/local/bin symlink" {
+            "/usr/local/bin/zstd" | Should -Exist
+        }
+
+        It "homebrew package <brewName>" -TestCases $testCases {
+            $brewPrefix = brew --prefix $brewName
+            $brewPackage = Join-Path $brewPrefix "bin" $brewCommand
+
+            "$brewPackage --version" | Should -ReturnZeroExitCode
+
+        }
 }
 
 Describe "Julia" {
