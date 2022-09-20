@@ -257,7 +257,7 @@ Describe "HHVM" -Skip:(Test-IsUbuntu22) {
 }
 
 Describe "Homebrew" {
-    Context "Hombrew glibc /bin files are not in PATH" -Skip:(Test-IsUbuntu22) {
+    Context "Hombrew glibc /bin files are not in PATH" {
         $glibcBinFiles = brew ls -v glibc | Select-String "/bin" | ForEach-Object { ([string]$_).Split("/")[-1] }
         $glibcBinaryPaths = $glibcBinFiles| ForEach-Object { which  $_ }
         $testCases = $glibcBinaryPaths | ForEach-Object { @{ BinaryPath = $_ } }
