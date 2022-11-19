@@ -344,5 +344,8 @@
     },
     "postgresql": {
         "version": "14"
+    },
+    "pwsh-core": {
+        "version": "7.2"
     }
 }
