@@ -363,7 +363,7 @@
     "postgresql": {
         "version": "14"
     },
-    "pwsh-core": {
+    "pwsh": {
         "version": "7.2"
     }
 
